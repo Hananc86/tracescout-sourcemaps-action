@@ -1,0 +1,63 @@
+name: "TraceScout Source Maps Upload"
+description: >
+  Upload private source maps to TraceScout for stack-trace symbolication.
+  Thin wrapper around the published @tracescout/cli — no duplicated upload
+  logic. The upload token comes from a GitHub Secret and is never echoed.
+branding: { icon: "upload-cloud", color: "purple" }
+
+inputs:
+  project:
+    description: "TraceScout project id"
+    required: true
+  release:
+    description: "Release identifying this build"
+    required: true
+  dist:
+    description: "Optional build variant (e.g. web)"
+    required: false
+    default: ""
+  path:
+    description: "File or directory containing the built *.js.map files"
+    required: true
+  url-prefix:
+    description: "Prefix used for each artifact's URL identity (e.g. ~/assets)"
+    required: false
+    default: "~/"
+  sources-content-policy:
+    description: "strip (default) | retain | reject"
+    required: false
+    default: ""
+  dry-run:
+    description: "Plan without uploading"
+    required: false
+    default: "false"
+  retries:
+    description: "Retry attempts per map"
+    required: false
+    default: "3"
+  auth-token:
+    description: "Scoped upload token — pass from a GitHub Secret. Never echoed."
+    required: true
+  cli-version:
+    description: "@tracescout/cli version to run"
+    required: false
+    default: "latest"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Upload source maps
+      shell: bash
+      env:
+        TRACESCOUT_AUTH_TOKEN: ${{ inputs.auth-token }}
+        TS_PROJECT: ${{ inputs.project }}
+        TS_RELEASE: ${{ inputs.release }}
+        TS_DIST: ${{ inputs.dist }}
+        TS_PATH: ${{ inputs.path }}
+        TS_URL_PREFIX: ${{ inputs.url-prefix }}
+        TS_POLICY: ${{ inputs.sources-content-policy }}
+        TS_DRY_RUN: ${{ inputs.dry-run }}
+        TS_RETRIES: ${{ inputs.retries }}
+        TS_CLI_VERSION: ${{ inputs.cli-version }}
+        TS_ACTION_DIR: ${{ github.action_path }}
+      run: bash "${TS_ACTION_DIR}/run.sh"
