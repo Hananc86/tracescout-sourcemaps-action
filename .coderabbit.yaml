@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json
+#
+# tracescout-sourcemaps-action — CodeRabbit review configuration.
+#
+# ADVISORY ONLY, and it cannot become a gate: branch protection is unavailable
+# on these repositories (the API answers 403 "Upgrade to GitHub Pro"), so a
+# required status check cannot exist. Review output is advice for a human.
+#
+# The non-path settings below are the baseline measured on TraceScout-SDK
+# (PR #169) and RE-MEASURED on this repository before being applied: this repo
+# has 0 non-PR issues, 0 labels applied to any PR, 0 reviewers ever requested
+# and 1 collaborator, so each disabled walkthrough section can only ever be
+# empty here. The path rules and the tools block are ADAPTED to this repo, not
+# copied.
+#
+# Left at defaults deliberately: reviews.profile (already `chill`),
+# reviews.collapse_walkthrough (already true), and the review cache
+# (reviews.disable_cache stays false — it is what prevents a finding being
+# re-posted).
+
+language: en-US
+
+reviews:
+  # --- advisory, never a gate -------------------------------------------------
+  auto_approvals:
+    enabled: false
+  fail_commit_status: false
+
+  # Pre-merge checks default to mode `warning`. On SDK they were 36% of a
+  # walkthrough and one FAILED on every PR over docstring coverage — cosmetic
+  # feedback presented as a failing check.
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+    title:
+      mode: "off"
+    description:
+      mode: "off"
+    issue_assessment:
+      mode: "off"
+
+  # --- stop generating cosmetic work items ------------------------------------
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+    simplify:
+      enabled: false
+    autofix:
+      enabled: false
+    fix_ci:
+      enabled: false
+    resolve_merge_conflict:
+      enabled: false
+
+  # --- walkthrough sections this repo cannot populate (measured above) --------
+  related_issues: false
+  assess_linked_issues: false
+  related_prs: false
+  suggested_labels: false
+  suggested_reviewers: false
+  auto_assign_reviewers: false
+  sequence_diagrams: false
+  estimate_code_review_effort: false
+  in_progress_fortune: false
+  poem: false
+
+  # --- where the signal is ----------------------------------------------------
+  path_instructions:
+    - path: "**/*.{sh,yml,yaml,mjs,js}"
+      instructions: >-
+        Report correctness, security and data-integrity defects. Prioritise, in this
+        order: (1) a check or assertion that CANNOT FAIL - a condition that is
+        always true, a filter whose pattern cannot match, a control that mutates
+        nothing, an assertion on a value that cannot take the failing form; (2) a
+        claim in a comment or docstring that the code it describes does not do; (3)
+        silent data loss or truncation - a narrowing cast before validation, an
+        unchecked overflow, a value one layer accepts and the next cannot represent;
+        (4) an error path that is swallowed, or a permanent failure reported as
+        retriable (or the reverse). Do NOT report formatting, naming, import order,
+        comment style, or a missing docstring.
+    - path: "**/*.{sh,yml,yaml}"
+      instructions: >-
+        A PUBLIC composite GitHub Action that handles a customer's upload token.
+        Report any path where the token could reach a log, an annotation, a step
+        summary or an error message; any use of an untrusted input in a shell
+        command without quoting; any unpinned third-party action; and a permissions
+        block wider than the job needs.
+
+  # --- prose linters off ------------------------------------------------------
+  # All 59 tools are enabled by default. These three check English prose and
+  # can only produce cosmetic feedback on this repository. Every security and
+  # correctness tool (gitleaks, trufflehog, semgrep, opengrep, checkov,
+  # osvScanner, presidio, eslint, actionlint, ...) is left ON.
+  tools:
+    languagetool:
+      enabled: false
+    vale:
+      enabled: false
+    markdownlint:
+      enabled: false
